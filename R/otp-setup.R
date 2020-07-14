@@ -50,28 +50,29 @@ otp_build_graph <- function(otp = NULL,
                             dir = NULL,
                             memory = 2048,
                             router = "default",
-                            analyst = FALSE) {
+                            analyst = FALSE,
+                            java = "java") {
 
   # Run Checks
   checkmate::assert_numeric(memory, lower = 500)
 
   text <- paste0(
-    "java -Xmx",
+    java, 
+    " -Xmx",
     memory,
-    'M -jar "',
+    'M -jar ',
     otp,
-    '" --build "',
+    ' --build ',
     dir,
     "/graphs/",
-    router,
-    '"'
+    router
   )
 
   if (analyst) {
     text <- paste0(text, " --analyst")
   }
 
-  check <- otp_checks(otp = otp, dir = dir, router = router, graph = FALSE)
+  check <- otp_checks(otp = otp, dir = dir, router = router, graph = FALSE, java = java)
   if (!check) {
     stop()
   }
@@ -155,7 +156,8 @@ otp_setup <- function(otp = NULL,
                       port = 8080,
                       securePort = 8081,
                       analyst = FALSE,
-                      wait = TRUE) {
+                      wait = TRUE,
+                      java = "java") {
   # Run Checks
   checkmate::assert_numeric(memory, lower = 500)
   memory <- floor(memory)
@@ -175,7 +177,7 @@ otp_setup <- function(otp = NULL,
   }
 
   # Run extra checks
-  check <- otp_checks(otp = otp, dir = dir, router = router, graph = TRUE)
+  check <- otp_checks(otp = otp, dir = dir, router = router, graph = TRUE, java = java)
   if (!check) {
     stop()
   }
@@ -306,7 +308,7 @@ otp_stop <- function(warn = TRUE, kill_all = TRUE) {
 #' @family internal
 #' @noRd
 
-otp_checks <- function(otp = NULL, dir = NULL, router = NULL, graph = FALSE) {
+otp_checks <- function(otp = NULL, dir = NULL, router = NULL, graph = FALSE, java = "java") {
   # Checks
   checkmate::assertDirectoryExists(dir)
   checkmate::assertDirectoryExists(paste0(dir, "/graphs/", router))
@@ -322,7 +324,7 @@ otp_checks <- function(otp = NULL, dir = NULL, router = NULL, graph = FALSE) {
       return(FALSE)
     }
   }
-  if(otp_check_java()){
+  if(otp_check_java(java)){
     return(TRUE)
   } else{
     return(FALSE)
@@ -337,9 +339,9 @@ otp_checks <- function(otp = NULL, dir = NULL, router = NULL, graph = FALSE) {
 #' @family setup
 #' @export
 #'
-otp_check_java <- function(){
+otp_check_java <- function(java = "java"){
   # Check we have correct verrsion of Java
-  java_version <- try(system2("java", "-version", stdout = TRUE, stderr = TRUE))
+  java_version <- try(system2(java, "-version", stdout = TRUE, stderr = TRUE))
   if (class(java_version) == "try-error") {
     warning("R was unable to detect a version of Java")
     return(FALSE)
