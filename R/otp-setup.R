@@ -14,6 +14,8 @@
 #' @param router A character string for the name of the router, must
 #'     subfolder of  dir/graphs, default "default". See vignettes for details.
 #' @param analyst Logical, should analyst feature be built, default FALSE. See advanced vignette for details.
+#' @param java String, absolute path to java jdk.  Defaults to "java", the path of 
+#'     
 #' @return
 #' Character vector of messages produced by OTP, and will return the message
 #'     "Graph built" if successful
@@ -164,10 +166,11 @@ otp_setup <- function(otp = NULL,
 
   # Setup request
   text <- paste0(
-    "java -Xmx", memory, 'M -jar "',
+    java,
+    "-Xmx", memory, 'M -jar "',
     otp,
-    '" --router ', router,
-    ' --graphs "', dir, '/graphs"',
+    ' --router ', router,
+    ' --graphs ', dir, '/graphs',
     " --server --port ", port,
     " --securePort ", securePort
   )
