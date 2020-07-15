@@ -167,7 +167,7 @@ otp_setup <- function(otp = NULL,
   # Setup request
   text <- paste0(
     java,
-    "-Xmx", memory, 'M -jar ',
+    " -Xmx", memory, 'M -jar ',
     otp,
     ' --router ', router,
     ' --graphs ', dir, '/graphs',
